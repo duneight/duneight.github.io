@@ -1,116 +1,58 @@
-/* schedule.css */
+/* players.css */
 
-/* Schedule Section */
-.schedule {
-    margin-bottom: 30px;
+/* Player Information Table */
+#playerTable {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 25px;
 }
 
-.round {
-    margin-bottom: 20px;
+#playerTable th, #playerTable td {
+    padding: 12px 10px;
+    text-align: center;
     border: 1px solid var(--border-color);
-    border-radius: 5px;
-    background-color: var(--light-color);
-    overflow: hidden;
+    font-size: 14px;
 }
 
-.round h3 {
+#playerTable th {
     background-color: var(--primary-color);
     color: var(--light-color);
-    padding: 10px;
-    margin: 0;
-    border-radius: 5px 5px 0 0;
-    display: flex;
-    align-items: center;
+    font-weight: 500;
+    text-transform: uppercase;
 }
 
-.round h3 .icon {
-    margin-right: 5px;
-}
-
-.match {
-    display: flex;
-    align-items: center;
-    padding: 10px;
-    border-top: 1px solid var(--border-color);
-}
-
-.match:last-child {
-    border-bottom: 1px solid var(--border-color);
-}
-
-.match .team {
-    flex: 1;
-    padding: 10px;
-    margin: 0 5px;
-    background-color: var(--background-color);
+#playerTable td input[type="text"],
+#playerTable td input[type="number"],
+#playerTable td select {
+    width: 90%;
+    padding: 8px;
     border: 1px solid var(--border-color);
-    min-height: 50px;
-    border-radius: 5px;
-    cursor: grab;
-    transition: background-color 0.3s;
+    border-radius: 3px;
+    font-size: 14px;
 }
 
-.match .team.empty:hover {
-    background-color: var(--secondary-color);
-    color: var(--light-color);
+#playerTable td button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--primary-color);
+    font-size: 16px;
+    transition: color 0.3s;
 }
 
-.match .vs {
-    width: 30px;
-    text-align: center;
-    font-weight: bold;
+#playerTable td button:hover {
     color: var(--secondary-color);
 }
 
-/* Schedule Container */
-.schedule-container {
-    max-height: 500px;
-    overflow-y: auto;
-}
+/* Responsive Adjustments */
+@media (max-width: 600px) {
+    #playerTable th, #playerTable td {
+        padding: 8px 5px;
+        font-size: 12px;
+    }
 
-/* Pair List */
-.pair-list {
-    margin-bottom: 30px;
-}
-
-.pair-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    max-height: 300px;
-    overflow-y: auto;
-    padding: 10px;
-    border: 1px solid var(--border-color);
-    border-radius: 5px;
-    background-color: var(--light-color);
-}
-
-.pair {
-    padding: 10px;
-    margin: 5px;
-    background-color: var(--background-color);
-    border: 1px solid var(--border-color);
-    cursor: grab;
-    text-align: center;
-    border-radius: 5px;
-    min-width: 120px;
-    transition: background-color 0.3s, color 0.3s;
-}
-
-.pair.dragging {
-    opacity: 0.5;
-}
-
-.pair:hover {
-    background-color: var(--secondary-color);
-    color: var(--light-color);
-}
-
-/* Matrix Highlights */
-.matrix .red {
-    background-color: #ffdddd;
-}
-
-.matrix .gray {
-    background-color: #ddd;
+    .pair {
+        min-width: 100px;
+        padding: 8px;
+    }
 }
