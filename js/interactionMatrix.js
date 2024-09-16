@@ -1,4 +1,9 @@
-// interactionMatrix.js
+// js/interactionMatrix.js
+
+/**
+ * Interaction Matrix Module
+ * Tracks interactions between players across matches and rounds.
+ */
 
 /**
  * Initialize the interaction matrix.
@@ -28,7 +33,7 @@ function initializeMatrix() {
         row.appendChild(th);
 
         allPlayers.forEach(player2 => {
-            const td = createElement('td', [], { id: `${player1}-${player2}` });
+            const td = createElement('td', [], { id: `matrix-${player1}-${player2}` });
             td.textContent = '0';
             if (player1 === player2) {
                 td.classList.add('gray');
@@ -41,7 +46,7 @@ function initializeMatrix() {
 }
 
 /**
- * Update the interaction matrix based on current schedule.
+ * Update the interaction matrix based on the current schedule.
  */
 function updateMatrix() {
     const allPlayers = players.map(player => player.name);
@@ -60,29 +65,29 @@ function updateMatrix() {
 
     const matches = document.querySelectorAll('.match');
     matches.forEach(match => {
-        const teamASlot = match.querySelector('.team[data-team="A"]');
-        const teamBSlot = match.querySelector('.team[data-team="B"]');
-        const pairA = teamASlot.textContent.trim();
-        const pairB = teamBSlot.textContent.trim();
+        const teamADiv = match.querySelector('.team[data-team="A"]');
+        const teamBDiv = match.querySelector('.team[data-team="B"]');
+        const pairA = teamADiv.textContent.trim();
+        const pairB = teamBDiv.textContent.trim();
 
         // Check for duplicate pairs
         if (pairA) {
             if (assignedPairs.has(pairA)) {
                 message = `Pair "${pairA}" is assigned multiple times.`;
-                teamASlot.classList.add('error');
+                teamADiv.style.backgroundColor = 'var(--error-color)';
             } else {
                 assignedPairs.add(pairA);
-                teamASlot.classList.remove('error');
+                teamADiv.style.backgroundColor = 'var(--background-color)';
             }
         }
 
         if (pairB) {
             if (assignedPairs.has(pairB)) {
                 message = `Pair "${pairB}" is assigned multiple times.`;
-                teamBSlot.classList.add('error');
+                teamBDiv.style.backgroundColor = 'var(--error-color)';
             } else {
                 assignedPairs.add(pairB);
-                teamBSlot.classList.remove('error');
+                teamBDiv.style.backgroundColor = 'var(--background-color)';
             }
         }
 
@@ -104,7 +109,7 @@ function updateMatrix() {
     // Update matrix cells
     allPlayers.forEach(p1 => {
         allPlayers.forEach(p2 => {
-            const cell = document.getElementById(`${p1}-${p2}`);
+            const cell = document.getElementById(`matrix-${p1}-${p2}`);
             const count = counts[p1][p2];
             cell.textContent = count;
             cell.classList.remove('red');
@@ -118,11 +123,7 @@ function updateMatrix() {
         });
     });
 
-    // Display message if any
+    // Display message if any conflicts
     const messageDiv = document.getElementById('message');
-    if (message) {
-        displayMessage('error', message);
-    } else {
-        messageDiv.textContent = '';
-    }
+    messageDiv.textContent = message;
 }

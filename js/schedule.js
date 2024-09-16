@@ -1,57 +1,35 @@
-// schedule.js
+// js/schedule.js
 
 /**
- * Generate schedule slots based on tournament settings.
- * Currently, the number of rounds and matches per round are fixed.
- * Future enhancements can make these customizable.
+ * Schedule Module
+ * Handles schedule generation, randomization, and reset functionalities.
  */
-function createScheduleSlots() {
-    const scheduleContainer = document.getElementById('scheduleContainer');
-    scheduleContainer.innerHTML = '';
 
-    const numRounds = getTournamentSettings().rounds;
-    const matchesPerRound = getTournamentSettings().matchesPerRound;
+// Since scheduling is handled by algorithms.js via Web Worker,
+// schedule.js can manage manual scheduling and interact with the worker.
 
-    for (let i = 1; i <= numRounds; i++) {
-        const roundDiv = createElement('div', ['round']);
-        roundDiv.innerHTML = `<h3><i class="fas fa-flag icon"></i> Round ${i}</h3>`;
+function initializeSchedule() {
+    createScheduleSlots();
+    createPairElements();
+    initializeDragAndDrop();
+    initializeMatrix();
+    updateMatrix();
 
-        for (let j = 1; j <= matchesPerRound; j++) {
-            const matchDiv = createElement('div', ['match']);
-
-            const teamADiv = createElement('div', ['team', 'empty'], {
-                'data-round': i,
-                'data-match': j,
-                'data-team': 'A',
-                'aria-label': `Round ${i} Match ${j} Team A`
-            });
-
-            const vsDiv = createElement('div', ['vs']);
-            vsDiv.textContent = 'VS';
-
-            const teamBDiv = createElement('div', ['team', 'empty'], {
-                'data-round': i,
-                'data-match': j,
-                'data-team': 'B',
-                'aria-label': `Round ${i} Match ${j} Team B`
-            });
-
-            matchDiv.appendChild(teamADiv);
-            matchDiv.appendChild(vsDiv);
-            matchDiv.appendChild(teamBDiv);
-
-            roundDiv.appendChild(matchDiv);
-        }
-
-        scheduleContainer.appendChild(roundDiv);
-    }
+    // Event Listeners for buttons
+    document.getElementById('randomizeBtn').addEventListener('click', () => {
+        randomizeSchedule();
+    });
+    document.getElementById('resetBtn').addEventListener('click', () => {
+        resetSchedule();
+    });
+    // Auto Generate button is handled in main.js
 }
 
 /**
  * Randomize the schedule by assigning pairs randomly to schedule slots.
  */
 function randomizeSchedule() {
-    // Reset pair list
+    // Reset pair lists
     createPairElements();
     initializeDragAndDrop();
 
@@ -62,7 +40,7 @@ function randomizeSchedule() {
     shuffleArray(availablePairs);
 
     // Assign pairs to schedule slots
-    const teamSlots = document.querySelectorAll('.team.empty');
+    const teamSlots = document.querySelectorAll('.team');
 
     // Clear existing assignments
     teamSlots.forEach(slot => slot.textContent = '');
@@ -77,91 +55,50 @@ function randomizeSchedule() {
     });
 
     updateMatrix();
-    displayMessage('success', 'Schedule randomized successfully.');
+    saveSchedule(getCurrentSchedule());
 }
 
 /**
  * Reset the schedule by clearing all assignments and restoring the pair list.
  */
 function resetSchedule() {
-    // Reset pair list
+    // Clear pair lists and re-create pairs
     createPairElements();
     initializeDragAndDrop();
 
     // Clear schedule slots
-    const teamSlots = document.querySelectorAll('.team.empty');
+    const teamSlots = document.querySelectorAll('.team');
     teamSlots.forEach(slot => slot.textContent = '');
 
+    // Update matrix
     updateMatrix();
-    displayMessage('success', 'Schedule reset successfully.');
+    saveSchedule(getCurrentSchedule());
 }
 
 /**
- * Automatically generate the schedule using scheduling algorithms.
+ * Get the current schedule from the UI.
+ * @returns {Object} - Current schedule.
  */
-function autoGenerateSchedule() {
-    displayMessage('warning', 'Auto-generating schedule. Please wait...');
-    // Disable buttons to prevent multiple executions
-    toggleButtons(true);
+function getCurrentSchedule() {
+    const schedule = {};
+    const rounds = document.querySelectorAll('.round');
 
-    // Perform scheduling in a Web Worker to prevent blocking the UI
-    if (window.Worker) {
-        const worker = new Worker('js/worker.js');
-        worker.postMessage({ action: 'generate', players: getPlayersData() });
+    rounds.forEach(roundDiv => {
+        const roundTitle = roundDiv.querySelector('h3').textContent.trim();
+        schedule[roundTitle] = [];
 
-        worker.onmessage = function(e) {
-            const { type, data } = e.data;
-            if (type === 'result') {
-                applySchedule(data.schedule);
-                displayMessage('success', 'Schedule generated automatically.');
-            } else if (type === 'error') {
-                displayMessage('error', data.message);
-            }
-            toggleButtons(false);
-            worker.terminate();
-        };
-    } else {
-        displayMessage('error', 'Web Workers are not supported in your browser.');
-        toggleButtons(false);
-    }
-}
-
-/**
- * Apply the generated schedule to the UI.
- * @param {Array} schedule 
- */
-function applySchedule(schedule) {
-    // Clear existing assignments
-    const teamSlots = document.querySelectorAll('.team.empty');
-    teamSlots.forEach(slot => slot.textContent = '');
-
-    // Assign pairs to slots
-    schedule.forEach((round, roundIndex) => {
-        round.matches.forEach((match, matchIndex) => {
-            const teamA = match.teamA;
-            const teamB = match.teamB;
-
-            const slotA = document.querySelector(`.team[data-round="${roundIndex + 1}"][data-match="${matchIndex + 1}"][data-team="A"]`);
-            const slotB = document.querySelector(`.team[data-round="${roundIndex + 1}"][data-match="${matchIndex + 1}"][data-team="B"]`);
-
-            if (teamA) {
-                slotA.appendChild(createPairElement(teamA));
-            }
-            if (teamB) {
-                slotB.appendChild(createPairElement(teamB));
-            }
+        const matches = roundDiv.querySelectorAll('.match');
+        matches.forEach(matchDiv => {
+            const teamADiv = matchDiv.querySelector('.team[data-team="A"]');
+            const teamBDiv = matchDiv.querySelector('.team[data-team="B"]');
+            const matchNumber = matchDiv.querySelector('.match').dataset.match || '1';
+            schedule[roundTitle].push({
+                match: matchNumber,
+                teamA: teamADiv.textContent.trim(),
+                teamB: teamBDiv.textContent.trim()
+            });
         });
     });
 
-    updateMatrix();
-}
-
-/**
- * Toggle the disabled state of action buttons during processing.
- * @param {boolean} disable 
- */
-function toggleButtons(disable) {
-    document.getElementById('randomizeBtn').disabled = disable;
-    document.getElementById('resetBtn').disabled = disable;
-    document.getElementById('autoGenerateBtn').disabled = disable;
+    return schedule;
 }

@@ -1,4 +1,9 @@
-// players.js
+// js/players.js
+
+/**
+ * Players Module
+ * Handles player addition, editing, removal, and storage.
+ */
 
 let players = [
     { name: "Mottram", handicap: 2.9, team: "A" },
@@ -19,8 +24,9 @@ let players = [
  * Load players from localStorage if available.
  */
 function loadPlayers() {
-    if (localStorage.getItem('players')) {
-        players = JSON.parse(localStorage.getItem('players'));
+    const storedPlayers = localStorage.getItem('players');
+    if (storedPlayers) {
+        players = JSON.parse(storedPlayers);
     }
 }
 
@@ -68,19 +74,24 @@ function createPairElements() {
     const pairs = generatePairs();
 
     pairs.forEach(pair => {
-        const team = getPlayer(pair.split('&')[0].trim()).team;
         const div = createElement('div', ['pair'], {
             'data-pair': pair,
-            'data-team': team,
-            'draggable': 'true',
-            'aria-grabbed': 'false',
-            'role': 'button',
-            'tabindex': '0',
-            'aria-label': `Pair ${pair}`
+            'data-team': getPairTeam(pair)
         });
         div.textContent = pair;
         pairContainer.appendChild(div);
     });
+}
+
+/**
+ * Get the team of a pair based on the first player's team.
+ * @param {string} pair 
+ * @returns {string} - 'A' or 'B'
+ */
+function getPairTeam(pair) {
+    const firstPlayer = pair.split('&')[0].trim();
+    const player = players.find(p => p.name === firstPlayer);
+    return player ? player.team : 'A';
 }
 
 /**
@@ -123,17 +134,17 @@ function generatePlayerInfo() {
 
         // Actions
         const tdActions = createElement('td');
-        const deleteButton = createElement('button', [], { 'aria-label': `Delete player ${player.name}` });
+        const deleteButton = createElement('button', [], { 'aria-label': `Delete ${player.name}` });
         deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
         deleteButton.addEventListener('click', () => {
-            if (confirm(`Are you sure you want to delete player ${player.name}?`)) {
+            if (confirm(`Are you sure you want to delete player "${player.name}"?`)) {
                 players.splice(index, 1);
+                savePlayers();
                 generatePlayerInfo();
                 createPairElements();
                 initializeDragAndDrop();
                 updateMatrix();
-                savePlayers();
-                displayMessage('success', `Player ${player.name} deleted successfully.`);
+                saveSchedule(getCurrentSchedule());
             }
         });
         tdActions.appendChild(deleteButton);
@@ -144,12 +155,11 @@ function generatePlayerInfo() {
 }
 
 /**
- * Add a new player.
+ * Add a new player with default values.
  */
 function addPlayer() {
     players.push({ name: '', handicap: 0.0, team: 'A' });
     generatePlayerInfo();
-    savePlayers();
 }
 
 /**
@@ -173,17 +183,17 @@ function updatePlayers() {
 
         // Validation
         if (name === '') {
-            displayMessage('error', 'Player name cannot be empty.');
+            showAlert('Player name cannot be empty.');
             hasError = true;
             return;
         }
         if (isNaN(handicap) || handicap < 0) {
-            displayMessage('error', `Invalid handicap for player ${name}.`);
+            showAlert(`Invalid handicap for player "${name}".`);
             hasError = true;
             return;
         }
         if (nameSet.has(name)) {
-            displayMessage('error', `Duplicate player name: ${name}.`);
+            showAlert(`Duplicate player name: "${name}".`);
             hasError = true;
             return;
         }
@@ -195,30 +205,13 @@ function updatePlayers() {
     if (hasError) return;
 
     players = updatedPlayers;
+    savePlayers();
     generatePlayerInfo();
     createPairElements();
     initializeDragAndDrop();
-    initializeMatrix();
     updateMatrix();
-    savePlayers();
-    displayMessage('success', 'Player information updated successfully.');
-}
-
-/**
- * Get player data for algorithms.
- * @returns {Array}
- */
-function getPlayersData() {
-    return players;
-}
-
-/**
- * Find a player by name.
- * @param {string} name 
- * @returns {Object|null}
- */
-function getPlayer(name) {
-    return players.find(player => player.name === name) || null;
+    saveSchedule(getCurrentSchedule());
+    showAlert('Player information updated successfully.');
 }
 
 /**
@@ -229,6 +222,7 @@ function initializePlayers() {
     generatePlayerInfo();
     createPairElements();
     initializeDragAndDrop();
+    // Event Listeners for buttons
     document.getElementById('addPlayerBtn').addEventListener('click', addPlayer);
     document.getElementById('updatePlayersBtn').addEventListener('click', updatePlayers);
 }
