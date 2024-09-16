@@ -5,6 +5,7 @@
  * Initializes all components and handles tab navigation.
  */
 
+// Wait for the DOM to fully load
 document.addEventListener('DOMContentLoaded', () => {
     initializeApp();
 });
@@ -20,28 +21,70 @@ function initializeApp() {
     initializeWorker(); // Initialize the Web Worker
     setupTabNavigation();
     setupAutoGenerateButton(); // Setup the Auto Generate button
+    setupUndoRedo(); // Setup Undo/Redo functionality
+    setupContrastToggle(); // Setup High Contrast Toggle
     loadExistingSchedule(); // Load schedule from localStorage if available
 }
 
 /**
- * Setup event listener for the Auto Generate button.
+ * Handle tab switching functionality.
  */
-function setupAutoGenerateButton() {
-    const autoGenerateBtn = document.getElementById('autoGenerateBtn');
-    autoGenerateBtn.addEventListener('click', () => {
-        const selectedAlgorithm = getSelectedAlgorithm();
-        generateSchedule(selectedAlgorithm);
+function setupTabNavigation() {
+    const tabs = document.querySelectorAll('.tab');
+    const tabContents = document.querySelectorAll('.tab-content');
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            // Remove 'active' class from all tabs
+            tabs.forEach(t => t.classList.remove('active'));
+            // Hide all tab contents
+            tabContents.forEach(content => content.classList.remove('active'));
+
+            // Add 'active' class to the clicked tab
+            tab.classList.add('active');
+            // Show the corresponding tab content
+            const targetTab = document.getElementById(tab.getAttribute('data-tab'));
+            if (targetTab) {
+                targetTab.classList.add('active');
+            }
+        });
     });
 }
 
 /**
+ * Initialize the Auto Generate button functionality.
+ */
+function setupAutoGenerateButton() {
+    const autoGenerateBtn = document.getElementById('autoGenerateBtn');
+    if (autoGenerateBtn) {
+        autoGenerateBtn.addEventListener('click', () => {
+            const selectedAlgorithm = getSelectedAlgorithm();
+            generateSchedule(selectedAlgorithm);
+        });
+    }
+}
+
+/**
  * Get the selected scheduling algorithm from the UI.
+ * For now, we'll assume 'greedy'. Extend this based on your UI.
  * @returns {string} - 'greedy' or 'simulatedAnnealing'
  */
 function getSelectedAlgorithm() {
-    // Implement based on your UI, e.g., a dropdown in the settings panel
+    // Implement based on your UI, e.g., a dropdown or radio buttons
     // For demonstration, we'll return 'greedy'
     return 'greedy';
+}
+
+/**
+ * Show or hide a loading indicator.
+ * @param {boolean} show 
+ */
+function showLoadingIndicator(show) {
+    const loader = document.getElementById('loader');
+    if (loader) {
+        loader.style.display = show ? 'flex' : 'none';
+        loader.setAttribute('aria-hidden', !show);
+    }
 }
 
 /**
@@ -53,50 +96,4 @@ function loadExistingSchedule() {
         const schedule = JSON.parse(savedSchedule);
         populateSchedule(schedule);
     }
-}
-
-/**
- * Save the generated schedule to localStorage.
- * @param {Object} schedule 
- */
-function saveSchedule(schedule) {
-    localStorage.setItem('schedule', JSON.stringify(schedule));
-}
-
-/* Loader Styles */
-.loader {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(240, 240, 240, 0.8);
-    display: none; /* Hidden by default */
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-}
-
-.loader .spinner {
-    border: 8px solid #f3f3f3;
-    border-top: 8px solid var(--primary-color);
-    border-radius: 50%;
-    width: 60px;
-    height: 60px;
-    animation: spin 1s linear infinite;
-}
-
-/* Spinner Animation */
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* Interaction Matrix Highlights */
-.matrix .red {
-    background-color: #ffdddd;
-}
-
-.matrix .gray {
-    background-color: #dddddd;
 }
