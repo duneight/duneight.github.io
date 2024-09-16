@@ -1,4 +1,8 @@
-// utils.js
+// js/utils.js
+
+/**
+ * Utility Functions Module
+ */
 
 /**
  * Shuffle an array in place using the Fisher-Yates algorithm.
@@ -38,18 +42,46 @@ function showAlert(message) {
 }
 
 /**
- * Display a message in the specified element.
- * @param {string} type - 'error', 'success', 'warning'
- * @param {string} message 
+ * Undo/Redo Stack Management
  */
-function displayMessage(type, message) {
-    const messageDiv = document.getElementById('message');
-    messageDiv.className = `message ${type}`;
-    messageDiv.textContent = message;
+const undoStack = [];
+const redoStack = [];
+const MAX_STACK_SIZE = 50;
 
-    // Auto-hide after 3 seconds
-    setTimeout(() => {
-        messageDiv.className = 'message';
-        messageDiv.textContent = '';
-    }, 3000);
+/**
+ * Push a new state to the undo stack.
+ * @param {Object} state 
+ */
+function pushToUndoStack(state) {
+    if (undoStack.length >= MAX_STACK_SIZE) {
+        undoStack.shift(); // Remove the oldest state
+    }
+    undoStack.push(JSON.stringify(state));
+    // Clear redo stack on new action
+    redoStack.length = 0;
 }
+
+/**
+ * Undo the last action.
+ * @returns {Object|null} - The previous state or null if stack is empty.
+ */
+function undo() {
+    if (undoStack.length === 0) return null;
+    const currentState = getCurrentSchedule();
+    redoStack.push(JSON.stringify(currentState));
+    const previousState = JSON.parse(undoStack.pop());
+    return previousState;
+}
+
+/**
+ * Redo the last undone action.
+ * @returns {Object|null} - The redone state or null if stack is empty.
+ */
+function redo() {
+    if (redoStack.length === 0) return null;
+    const currentState = getCurrentSchedule();
+    undoStack.push(JSON.stringify(currentState));
+    const redoneState = JSON.parse(redoStack.pop());
+    return redoneState;
+}
+
