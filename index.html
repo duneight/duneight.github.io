@@ -1,69 +1,38 @@
-<!-- index.html -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Quinte-ssential Cup Golf Tournament Scheduling Tool</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css?family=Poppins:300,400,600&display=swap" rel="stylesheet">
-    <!-- Font Awesome for Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- CSS Files -->
-    <link rel="stylesheet" href="css/main.css">
-    <link rel="stylesheet" href="css/schedule.css">
-    <link rel="stylesheet" href="css/players.css">
+    <title>Quinte-ssential Cup 2024</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1><i class="fas fa-golf-ball icon"></i>Quinte-ssential Cup 2024</h1>
-        </header>
+        <h1>Quinte-ssential Cup 2024</h1>
 
-        <!-- Tabs Navigation -->
-        <nav class="tabs" role="tablist">
-            <button class="tab active" data-tab="scheduleTab" role="tab" aria-selected="true" aria-controls="scheduleTab" id="tab-schedule">
-                <i class="fas fa-calendar-alt icon"></i> Schedule
-            </button>
-            <button class="tab" data-tab="playerInfoTab" role="tab" aria-selected="false" aria-controls="playerInfoTab" id="tab-player-info">
-                <i class="fas fa-user icon"></i> Player Info
-            </button>
-            <button class="tab" data-tab="interactionMatrixTab" role="tab" aria-selected="false" aria-controls="interactionMatrixTab" id="tab-interaction-matrix">
-                <i class="fas fa-th icon"></i> Interaction Matrix
-            </button>
-        </nav>
+        <div class="tabs">
+            <button class="tab active" data-tab="scheduleTab">Schedule</button>
+            <button class="tab" data-tab="playerInfoTab">Player Info</button>
+            <button class="tab" data-tab="interactionMatrixTab">Interaction Matrix</button>
+        </div>
 
-        <!-- Tab Contents -->
-        <section id="scheduleTab" class="tab-content active" role="tabpanel" aria-labelledby="tab-schedule">
-            <!-- Schedule Section -->
-            <div class="schedule">
-                <h2><i class="fas fa-calendar-day icon"></i> Schedule</h2>
-                <!-- Buttons -->
-                <div class="button-container">
-                    <button id="randomizeBtn" aria-label="Randomize Schedule"><i class="fas fa-random icon"></i> Randomize</button>
-                    <button id="resetBtn" aria-label="Reset Schedule"><i class="fas fa-undo icon"></i> Reset</button>
-                    <button id="autoGenerateBtn" aria-label="Auto Generate Schedule"><i class="fas fa-play-circle icon"></i> Auto Generate</button>
-                </div>
-                <!-- Schedule Slots -->
-                <div id="scheduleContainer" class="schedule-container">
-                    <!-- Schedule will be dynamically generated here -->
-                </div>
+        <div id="scheduleTab" class="section tab-content active" role="tabpanel" aria-labelledby="tab-schedule">
+            <h2>Schedule</h2>
+            <div class="button-container">
+                <button id="randomizeBtn">Randomize</button>
+                <button id="resetBtn">Reset</button>
+                <button id="autoGenerateBtn">Auto Generate</button>
             </div>
-
-            <!-- Pair List -->
+            <div id="scheduleContainer" class="schedule-container"></div>
             <div class="pair-list">
-                <h2><i class="fas fa-users icon"></i> Available Pairs</h2>
-                <div id="pairContainer" class="pair-container" aria-label="Available Pairs">
-                    <!-- Pairs will be dynamically inserted here -->
-                </div>
+                <h2>Available Pairs</h2>
+                <div id="pairContainer" class="pair-container" aria-label="Available Pairs"></div>
             </div>
-        </section>
+        </div>
 
-        <section id="playerInfoTab" class="tab-content" role="tabpanel" aria-labelledby="tab-player-info">
-            <!-- Player Information Section -->
-            <h2><i class="fas fa-user-friends icon"></i> Player Information</h2>
-            <table id="playerTable" aria-label="Player Information Table">
+        <div id="playerInfoTab" class="section tab-content" role="tabpanel" aria-labelledby="tab-player-info">
+            <h2>Player Information</h2>
+            <table id="playerTable">
                 <thead>
                     <tr>
                         <th>Player</th>
@@ -72,46 +41,30 @@
                         <th>Actions</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <!-- Player rows will be generated here -->
-                </tbody>
+                <tbody></tbody>
             </table>
             <div class="button-container">
-                <button id="addPlayerBtn" aria-label="Add Player"><i class="fas fa-plus icon"></i> Add Player</button>
-                <button id="updatePlayersBtn" aria-label="Update Players"><i class="fas fa-sync-alt icon"></i> Update Players</button>
+                <button id="addPlayerBtn">Add Player</button>
+                <button id="updatePlayersBtn">Update Players</button>
             </div>
-        </section>
+        </div>
 
-        <section id="interactionMatrixTab" class="tab-content" role="tabpanel" aria-labelledby="tab-interaction-matrix">
-            <!-- Interaction Matrix Section -->
-            <h2><i class="fas fa-th icon"></i> Interaction Matrix</h2>
+        <div id="interactionMatrixTab" class="section tab-content" role="tabpanel" aria-labelledby="tab-interaction-matrix">
+            <h2>Interaction Matrix</h2>
             <div id="message" class="message" aria-live="polite"></div>
-            <div class="matrix" aria-label="Interaction Matrix">
-                <table id="interactionMatrix">
-                    <!-- Matrix will be dynamically generated here -->
-                </table>
-            </div>
-        </section>
-
-        <footer>
-            &copy; 2024 Quinte-ssential Cup. All rights reserved.
-        </footer>
+            <div class="matrix" aria-label="Interaction Matrix"></div>
+        </div>
     </div>
 
-    <!-- Loader (hidden by default) -->
     <div id="loader" class="loader" aria-hidden="true">
         <div class="spinner"></div>
     </div>
 
-    <!-- Libraries -->
-    <script src="lib/interact.min.js"></script>
-    <!-- JavaScript Files -->
-    <script src="js/utils.js"></script>
-    <script src="js/drag-drop.js"></script>
-    <script src="js/interactionMatrix.js"></script>
-    <script src="js/algorithms.js"></script>
-    <script src="js/schedule.js"></script>
-    <script src="js/players.js"></script>
-    <script src="js/main.js"></script>
+    <!-- Load JavaScript files -->
+    <script src="assets/js/interact.min.js"></script>
+    <script src="assets/js/data.js"></script>
+    <script src="assets/js/matrix.js"></script>
+    <script src="assets/js/drag-and-drop.js"></script>
+    <script src="assets/js/main.js"></script>
 </body>
 </html>
